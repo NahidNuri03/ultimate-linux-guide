@@ -1,42 +1,69 @@
-# Understanding the Folder Structure
+# Understanding the Linux Filesystem Hierarchy
 
-### Explanation of System Directories
+Unlike Windows, which uses separate drive letters (`C:`, `D:`), Linux organizes everything into a single, unified directory tree. Every single file, folder, and physical device branches out from the root directory, represented simply by a single forward slash: `/`.
 
-### **Symbolic Links (Less Significant)**
-| Directory | Description |
-|-----------|-------------|
-| `/sbin -> /usr/sbin` | System binaries for administrative commands (linked to `/usr/sbin`). |
-| `/bin -> /usr/bin` | Essential user binaries (linked to `/usr/bin`). |
-| `/lib -> /usr/lib` | Shared libraries and kernel modules (linked to `/usr/lib`). |
+This structure follows a strict global guideline known as the **Filesystem Hierarchy Standard (FHS)**, ensuring predictability across different Linux distributions.
 
-### **Important System Directories**
-| Directory | Description |
-|-----------|-------------|
-| `/boot` | Stores files needed for booting the system (not relevant in containers). |
-| `/usr` | Contains most user-installed applications and libraries. |
-| `/var` | Stores logs, caches, and temporary files that change frequently. |
-| `/etc` | Stores system configuration files. |
+---
 
-### **User & Application-Specific Directories**
-| Directory | Description |
-|-----------|-------------|
-| `/home` | Default location for user home directories. |
-| `/opt` | Used for installing optional third-party software. |
-| `/srv` | Holds data for services like web servers (rarely used in containers). |
-| `/root` | Home directory for the root user. |
+### 🔗 1. Modern Symbolic Links (The Merged Directories)
 
-### **Temporary & Volatile Directories**
-| Directory | Description |
-|-----------|-------------|
-| `/tmp` | Temporary files (cleared on reboot). |
-| `/run` | Holds runtime data for processes. |
-| `/proc` | Virtual filesystem for process and system information. |
-| `/sys` | Virtual filesystem for hardware and kernel information. |
-| `/dev` | Contains device files (e.g., `/dev/null`, `/dev/sda`). |
+In modern Linux systems, several historic root directories have been merged into the `/usr` directory to simplify system management. The folders directly under `/` are now **Symbolic Links** (shortcuts) pointing to their real locations:
 
-### **Mount Points**
-| Directory | Description |
-|-----------|-------------|
-| `/mnt` | Temporary mount point for external filesystems. |
-| `/media` | Mount point for removable media (USB, CDs). |
-| `/data` | Likely your **mounted volume** from Windows (`C:/ubuntu-data`). |
+| Directory | What it is | Beginner-Friendly Explanation |
+| :--- | :--- | :--- |
+| `/bin` $\rightarrow$ `/usr/bin` | **User Binaries** | Contains standard commands and core programs that any system user can run (like `ls`, `cd`, `grep`, and `bash`). |
+| `/sbin` $\rightarrow$ `/usr/sbin` | **System Binaries** | Houses critical system administration tools. These commands (like `iptables` or `reboot`) usually require admin (`sudo`) privileges to run. |
+| `/lib` $\rightarrow$ `/usr/lib` | **System Libraries** | Stores the shared code books and background libraries that the programs inside `/bin` and `/sbin` need to work properly. |
+
+---
+
+### ⚙️ 2. Core System Configurations & Data
+
+These are the operational folders that keep the operating system running smoothly behind the scenes:
+
+| Directory | What it is | Beginner-Friendly Explanation |
+| :--- | :--- | :--- |
+| `/etc` | **Editable Text Configuration** | The control center of your system. It stores text-based settings files for everything from your network setup to user passwords and installed apps (like Nginx configuration). |
+| `/var` | **Variable Data** | Holds dynamic files that grow and change constantly while the system is running. This includes application logs (`/var/log`), database contents, and temporary mail queues. |
+| `/usr` | **User System Resources** | Historically stood for "User Source Resources." It acts like the `C:\Program Files` directory in Windows, storing the vast majority of user-installed programs, icons, and libraries. |
+| `/boot` | **Bootloader Files** | Contains the vital engine pieces (like the Linux Kernel itself) needed to start your computer up. *(Note: This folder is mostly empty or unused inside lightweight Docker containers).* |
+
+---
+
+### 👤 3. User & Application Workspaces
+
+These folders provide isolated storage areas for human users and third-party enterprise tools:
+
+| Directory | What it is | Beginner-Friendly Explanation |
+| :--- | :--- | :--- |
+| `/home` | **User Personal Folders** | The equivalent of `C:\Users` on Windows. Every normal user gets a personal sandbox folder here (like `/home/alex`) to store documents, scripts, and personal settings. |
+| `/root` | **Superuser Home** | The private personal home directory exclusive to the all-powerful **root** administrator account. It is kept completely separate from normal user folders for security. |
+| `/opt` | **Optional Software** | Reserved for massive, self-contained third-party software packages that you install manually (like Google Chrome, Slack, or custom developer tools). |
+| `/srv` | **Service Data** | A dedicated folder to hold site-specific data served by your system, such as files for an active web server or FTP storage. *(Rarely used inside Docker containers).* |
+
+---
+
+### ⚡ 4. Virtual, Temporary, & Dynamic Filesystems
+
+These directories do not actually store data on your physical hard drive. Instead, they are generated on the fly directly in your computer's RAM or managed dynamically by the kernel:
+
+| Directory | What it is | Beginner-Friendly Explanation |
+| :--- | :--- | :--- |
+| `/tmp` | **Temporary Files** | A scratchpad area where applications can scribble down quick notes or temporary cache files. **Warning:** This folder is wiped completely empty every time the system reboots. |
+| `/run` | **Runtime Data** | Holds live, system-level info about processes running right now since the last boot (such as process ID files and system sockets). |
+| `/proc` | **Process Info (Virtual)** | A fake file system generated by the kernel in your RAM. Opening files here lets you look directly at live kernel statistics and active system process charts. |
+| `/sys` | **System Info (Virtual)** | Another virtual folder in your RAM. It gives you a structured window into your hardware configurations, connected devices, and kernel drivers. |
+| `/dev` | **Device Nodes** | In Linux, *everything is treated as a file*. This folder maps hardware pieces directly to file handles. For example, your first hard drive is `/dev/sda`, and a special trash-can file that deletes data instantly is `/dev/null`. |
+
+---
+
+### 🔌 5. Storage Mount Points
+
+These directories are empty staging areas used to hook up external file storage systems into your main Linux directory tree:
+
+| Directory | What it is | Beginner-Friendly Explanation |
+| :--- | :--- | :--- |
+| `/mnt` | **Manual Mount Point** | A clean location traditionally used by administrators to temporarily plug in external filesystems, network storage shares, or secondary hard drives. |
+| `/media` | **Removable Media** | The system automatically hooks up removable plug-and-play storage devices here, such as USB thumb drives or external backup disks. |
+| `/data` | **Custom Mounted Volume** | This directory does not exist by default in Linux. It was explicitly created by the `--mount` rule in our Docker configuration, directly mirroring your local host computer's folder (`C:/Users/.../ubuntu-data` or `~/ubuntu-data`). |
