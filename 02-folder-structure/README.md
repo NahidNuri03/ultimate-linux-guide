@@ -12,7 +12,7 @@ In modern Linux systems, several historic root directories have been merged into
 
 | Directory | What it is | Beginner-Friendly Explanation |
 | :--- | :--- | :--- |
-| `/bin` $\rightarrow$ `/usr/bin` | **User Binaries** | Contains standard commands and core programs that any system user can run (like `ls`, `cd`, `grep`, and `bash`). |
+| `/bin` $\rightarrow$ `/usr/bin` | **User Binaries** | Contains standard commands and core programs that any system user can run (like `ls`, `cat`, `grep`, and `mkdir`). |
 | `/sbin` $\rightarrow$ `/usr/sbin` | **System Binaries** | Houses critical system administration tools. These commands (like `iptables` or `reboot`) usually require admin (`sudo`) privileges to run. |
 | `/lib` $\rightarrow$ `/usr/lib` | **System Libraries** | Stores the shared code books and background libraries that the programs inside `/bin` and `/sbin` need to work properly. |
 
@@ -67,3 +67,51 @@ These directories are empty staging areas used to hook up external file storage 
 | `/mnt` | **Manual Mount Point** | A clean location traditionally used by administrators to temporarily plug in external filesystems, network storage shares, or secondary hard drives. |
 | `/media` | **Removable Media** | The system automatically hooks up removable plug-and-play storage devices here, such as USB thumb drives or external backup disks. |
 | `/data` | **Custom Mounted Volume** | This directory does not exist by default in Linux. It was explicitly created by the `--mount` rule in our Docker configuration, directly mirroring your local host computer's folder (`C:/Users/.../ubuntu-data` or `~/ubuntu-data`). |
+
+
+# Linux Commands: Shell Built-ins vs. External Binaries
+
+In Linux, commands generally fall into two architectural categories: **Shell Built-ins** (internal routines running directly inside the shell's memory) and **External Binaries / System Utilities** (independent files stored on the disk). 
+
+Some commands exist strictly as built-ins, while others exist as **both** a built-in and an external file to maintain system compatibility.
+
+---
+
+## 1. Strictly Shell Built-ins (No External Binary)
+These commands exist **only** inside the shell's source code. They manipulate the shell environment itself. Because an external process cannot alter the parent shell's state, these commands *cannot* exist as standalone disk files.
+
+* **`cd`** (Changes the current shell's working directory)
+* **`exit`** (Closes the current shell session)
+* **`export`** (Sets environment variables for the current session)
+* **`alias`** (Creates command shortcuts within the shell)
+* **`history`** (Tracks commands executed within the current shell)
+
+---
+
+## 2. Hybrid Commands (Both Built-in and External Binary)
+These commands are built directly into the shell for maximum speed and performance. However, a duplicate, standalone binary version also resides on the disk (typically in `/usr/bin/`). 
+
+The external binary ensures that non-shell environments or specialized scripts can still execute the command when a standard shell isn't running.
+
+| Command | Why it is a Built-in | Location of External Binary |
+| :--- | :--- | :--- |
+| **`pwd`** | Instantly prints the shell's tracked working directory. | `/usr/bin/pwd` |
+| **`echo`** | Quickly prints text strings to stdout without process overhead. | `/usr/bin/echo` |
+| **`kill`** | Allows the shell to send signals to processes instantly. | `/usr/bin/kill` |
+| **`test`** | Optimizes conditional expressions and loops in shell scripts. | `/usr/bin/test` |
+| **`printf`**| Formats and prints data faster than spawning a new process. | `/usr/bin/printf` |
+
+> 💡 **Note:** When you type a hybrid command, the shell defaults to using its internal **built-in** version. To force the system to use the external binary utility instead, you must specify its absolute path (e.g., `/usr/bin/pwd`).
+
+---
+
+## 3. Pure External Binaries / System Utilities (Not Built-in)
+These are standard user or system binaries. They are completely independent files located on your disk drive. The shell must look up their locations via the `$PATH` environment variable and spawn a new child process to run them.
+
+* **`ls`** (Lists directory contents — located at `/usr/bin/ls`)
+* **`mkdir`** (Creates directories — located at `/usr/bin/mkdir`)
+* **`grep`** (Searches text patterns — located at `/usr/bin/grep`)
+* **`chmod`** (Modifies file permissions — located at `/usr/bin/chmod`)
+
+
+
