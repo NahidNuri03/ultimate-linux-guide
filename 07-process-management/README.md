@@ -53,8 +53,7 @@ pidof chrome
 *   `pkill -9 processname` – Forcefully wipes out all running instances matching a specific name.
 *   `kill -STOP PID` – Pauses/freezes a running process in its tracks without closing it.
 *   `kill -CONT PID` – Wakes up and resumes a paused process right where it left off.
-- `renice -n 10 -p PID` – Lower priority of a process
-- `renice -n -5 -p PID` – Increase priority of a process (requires root)
+*   `kill -3 PID` – Sends SIGQUIT to the process. It tells the process to quit and produce a diagnostic report if the program supports it. On many programs, especially Java applications, this causes the program to print useful information about what it is currently doing (such as its running threads) and may create a core dump before exiting. This makes kill -3 mainly useful for troubleshooting a program, rather than simply stopping it.
 
 
 ### Linux Jobs — Summary
