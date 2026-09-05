@@ -34,12 +34,19 @@ ps -o pid,%cpu,%mem -C chrome
 %cpu: Displays the percentage of CPU (processor) power that specific process is actively using.
 %mem: Displays the percentage of your computer's RAM (memory) that specific process is hoarding.
 --sort=-%mem (The minus sign - tells the system to sort in descending order, showing the biggest memory hogs first)
-- `pgrep processname` – Searches for a process by name and return its PID.  only returns raw numbers. To make it print the process name next to the numbers, use the -l flag
+- `pgrep processname` – Searches for a process by name and return its PID.  only returns raw numbers. To make it print the process name next to the numbers, use the -l flag. -a  → show more information (full command etc) -f  → search the full command line 
 ```bash
 pgrep -l ssh
 1105 sshd
 2931 ssh-agent
-``` 
+```
+```bash
+ssh user@192.168.1.50
+pgrep -a ssh
+5321 ssh user@192.168.1.50
+```
+<img width="1025" height="598" alt="image" src="https://github.com/user-attachments/assets/92a68835-155a-4f1d-943a-a077e4554d08" />
+
 - `pidof processname` – Find the PID of a running program. It prints just the raw numbers, separated by spaces, on a single line, usually in reverse chronological order
 ```bash
 pidof chrome 
