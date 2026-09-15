@@ -1,8 +1,4 @@
-# The DevOps Guide to System Architecture: From Code to CPU Cores
 
-This guide provides a comprehensive breakdown of computing architecture, mapping abstract software terms directly to physical hardware execution and visual monitoring tools like `htop`.
-
----
 
 ## 1. The Core Terminology (The Kitchen Analogy)
 To understand system engineering, think of your operating system and hardware as a **professional restaurant kitchen**.
@@ -12,15 +8,6 @@ To understand system engineering, think of your operating system and hardware as
 *   **Process (The Kitchen Station):** An isolated, active instance of a running program. It gets its own dedicated memory space, resources, and security boundaries. If one process crashes, it does not ruin other processes.
 *   **Thread (The Individual Chefs):** The smallest unit of execution inside a process. A single process can spawn multiple threads to handle work in parallel. They share the same memory space and ingredients. If one thread encounters a fatal error, the whole parent process crashes.
 *   **Daemon (The Night Shift Cleaners):** A background process that runs continuously without a direct user interface. It usually starts at boot time (e.g., `sshd`, `systemd`, `cron`) and sleeps until a specific event triggers it.
-
-### Core Architecture Reference Table
-| Term | What it is | Memory Isolation | DevOps Context |
-| :--- | :--- | :--- | :--- |
-| **Program** | Static binary/code on disk | None (inactive) | Artifacts deployed via CI/CD pipelines. |
-| **Command** | The manual or automated trigger | Temporary | Executed in terminals, scripts, or cron jobs. |
-| **Process** | Isolated running instance | **Isolated** (Private RAM) | Monitored, containerized (Docker), and bounded by cgroups. |
-| **Thread** | Lightweight execution unit | **Shared** (Within Process) | Concurrency model; high counts can lead to CPU spikes. |
-| **Daemon** | Background system service | **Isolated** (Private RAM) | Managed via init systems like `systemctl`. |
 
 ---
 
