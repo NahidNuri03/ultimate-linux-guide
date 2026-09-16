@@ -36,12 +36,9 @@ In `htop`, you will see three numbers listed under "Load Average" (e.g., `1.05, 
 
 ### Reading the Trend Instantly
 By looking at the numbers from left to right, you can see where your system traffic is heading:
-*   `5.00, 2.00, 0.50` $
-ightarrow$ **Traffic is building up.** The long-term average was low, but a sudden surge occurred in the last minute.
-*   `0.50, 2.00, 5.00` $
-ightarrow$ **The storm has passed.** The system was heavily overloaded 15 minutes ago, but the queue has cleared and things are quiet now.
-*   `4.00, 4.10, 3.95` $
-ightarrow$ **Persistent gridlock.** The load has been consistently high across all timeframes.
+*   `5.00, 2.00, 0.50`  **Traffic is building up.** The long-term average was low, but a sudden surge occurred in the last minute.
+*   `0.50, 2.00, 5.00`  **The storm has passed.** The system was heavily overloaded 15 minutes ago, but the queue has cleared and things are quiet now.
+*   `4.00, 4.10, 3.95`  **Persistent gridlock.** The load has been consistently high across all timeframes.
 
 ---
 
