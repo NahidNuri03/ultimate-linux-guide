@@ -278,3 +278,40 @@ st    → CPU time taken by other VMs
 
 
 `vmstat` is most useful when you read several columns together and watch how they change over time.
+
+
+
+
+## Memory monitoring — `free -m`
+
+A simple, one-shot snapshot of memory usage, shown in megabytes (`-m`). Use `-h` instead of `-m` if you'd rather it auto-pick the friendliest unit (MB/GB).
+
+**Real output:**
+
+```text
+$ free -m
+              total        used        free      shared  buff/cache   available
+Mem:           9830        3241        1120         210        5469        6120
+Swap:          2048          78        1970
+```
+
+**Column by column:**
+
+- **`total`** — the total physical RAM actually installed in the machine. This number doesn't change; it's just "here's how much RAM this machine physically has." In the example: 9830 MB, roughly 9.8 GB.
+
+- **`used`** — RAM currently held by running programs for their own active work (this is the sum of what would show up as each process's RES value in htop, roughly speaking). In the example: 3241 MB genuinely in use by programs.
+
+- **`free`** — RAM that is completely untouched, not being used for anything at all, not even caching. This number is usually small on a machine that's been running a while, and that's completely normal — Linux doesn't like leaving RAM sitting idle for no reason, so it puts spare RAM to work caching things.
+
+- **`shared`** — RAM being used by memory that multiple processes are deliberately sharing on purpose, such as shared memory segments some programs use to pass data between each other directly through RAM instead of over a slower channel. Usually a small number unless you're running something specifically designed to use shared memory heavily (like some databases).
+
+- **`buff/cache`** — RAM being used as temporary, reusable storage: the disk's own "inventory list" (which file is where) plus actual copies of file contents you've recently read, combined into one column here. This is the same `buff`/`cache` idea from vmstat, just merged together. Not wasted — it's instantly reclaimable the moment a program actually needs that RAM.
+
+- **`available`** — this is the column that actually answers "how much memory could I hand to a new program right now if I needed to?" It's an estimate that already accounts for the fact that `buff/cache` could be shrunk instantly if needed. This is the number to trust over `free`.
+
+- **`Swap` row (`total`, `used`, `free`)** — same three ideas, but for swap space (the disk-backed overflow area) instead of RAM. `used` here is the one to watch.
+
+**DevOps read**: ignore `free` as your main signal — a low `free` number is expected and normal. Watch `available` instead: if it's low and trending downward over repeated checks, the machine genuinely has little real headroom left. Also glance at the `Swap` row's `used` value — if it's growing over time (not just a small static amount sitting there from earlier), that lines up with what `si`/`so` in vmstat would also be telling you: real, ongoing memory pressure.
+
+---
+
