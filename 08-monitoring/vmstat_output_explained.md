@@ -18,12 +18,13 @@ This updates the output every 1 second.
 
 > **Important:** The first line of `vmstat 1` is an average since boot on many Linux systems, while the following lines represent activity during each interval. For real-time troubleshooting, focus mainly on the repeated lines.
 
-
-procs	memory	                    swap	io	    system	cpu
-r	b	  swpd	free	  buff	cache	  si so	bi	bo	in	cs	us	sy	id	wa	st
+```text
+procs	  memory	                    swap	io	    system	cpu
+r	b	  swpd	free	  buff	cache  si  so	bi	bo	in	cs	us	sy	id	wa	st
 2	0	  1024	812340	98220	1543200	0	 0	12	45	210	340	18	4	  76	2	  0
 5	2	  1024	790110	98220	1543400	0	 0	0	1820	245	410	30	12	10	48	0
 $ vmstat 2  — each row is one 2-second snapshot, oldest first
+```
 
 ---
 
