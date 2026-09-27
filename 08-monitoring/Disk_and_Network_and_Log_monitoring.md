@@ -298,4 +298,67 @@ Address: 142.250.72.14
 - **`Name`** — the domain name you actually asked about.
 - **`Address` (bottom)** — the actual IP address that domain name resolves to — this is the real answer to "what address does this hostname point to right now?"
 **DevOps read**: your go-to when something can reach an IP directly but not by name (or vice versa) — this tells you whether DNS itself is the broken link, and what address a name is actually resolving to, which is invaluable when tracking down issues like a DNS record pointing to a stale/wrong server after a migration.
+
+
+  ---
+ 
+## Log monitoring
+ 
+### `tail -f /var/log/syslog` — live monitoring of system logs
+ 
+**Real output:**
+ 
+```text
+$ tail -f /var/log/syslog
+Sep 27 10:12:01 web01 sshd[2231]: Accepted publickey for alex from 203.0.113.5 port 51422
+Sep 27 10:12:04 web01 systemd[1]: Started Session 42 of user alex.
+Sep 27 10:14:22 web01 nginx[2210]: 203.0.113.5 - - "GET /health HTTP/1.1" 200
+Sep 27 10:15:01 web01 CRON[3312]: (root) CMD (/usr/local/bin/backup.sh)
+```
+ 
+**What's going on here:** `/var/log/syslog` is just a plain text file where many programs on the machine write a line every time something happens worth recording — a login, a service starting, a request coming in, an error, and so on. `tail` normally just shows you the last few lines of a file and stops. The `-f` flag means "follow" — instead of stopping, it keeps the terminal open and prints each new line the instant it gets written to the file, so you're watching events happen live, in real time, as they occur on the machine.
+ 
+**DevOps read**: this is the simplest way to watch "what's happening on this machine right now" — especially useful while reproducing a problem (e.g. run `tail -f` in one window, then trigger the issue in another, and watch exactly what gets logged the moment it happens).
+ 
+---
+ 
+### `journalctl -f` — live system logs for systemd-based distros
+ 
+**Real output:**
+ 
+```text
+$ journalctl -f
+Sep 27 10:12:01 web01 sshd[2231]: Accepted publickey for alex from 203.0.113.5 port 51422
+Sep 27 10:12:04 web01 systemd[1]: Started Session 42 of user alex.
+Sep 27 10:15:10 web01 nginx.service: Reloading nginx configuration...
+Sep 27 10:15:11 web01 nginx.service: Reload succeeded.
+```
+ 
+**What's going on here:** think of **systemd** as the manager program that runs on most modern Linux machines and is in charge of starting everything else up — when the machine boots, systemd is what actually starts your web server, your database, your networking, and so on, one by one, and keeps track of whether each one is still running, restarting it automatically if it crashes. Each thing systemd manages (like `nginx` or `sshd`) is called a "service."
+ 
+Since systemd is the one starting and supervising all these services anyway, it also collects the log output from every single one of them in one central place, called the **journal** — instead of each service having to write its own separate plain text log file (like `syslog` does), they all funnel into this one shared, unified log that systemd itself manages. `journalctl` is simply the command you use to read that journal — and `-f` means the same "follow" idea as with `tail`: keep the window open and stream new entries live as they happen.
+ 
+The practical upside of this centralized approach: because systemd already knows exactly which service produced each log line, `journalctl` can filter by service name directly (see below) — something plain `tail` on a single shared text file can't do nearly as easily.
+ 
+**DevOps read**: on a systemd-based machine (which is most current Linux distros), this is usually your primary live log view instead of `tail -f /var/log/syslog` — useful extras include `journalctl -u nginx -f` to follow logs for just one specific service by name, which plain `tail` can't easily filter for you.
+ 
+---
+ 
+### `dmesg | tail` — view kernel logs
+ 
+**Real output:**
+ 
+```text
+$ dmesg | tail
+[   12.402841] eth0: link up, 1000 Mbps, full duplex
+[  843.221093] usb 1-2: new high-speed USB device
+[ 1204.552210] EXT4-fs (sda1): mounted filesystem with ordered data mode
+[ 2011.093812] Out of memory: Killed process 4821 (node) total-vm:3145728kB
+```
+ 
+**What's going on here:** `dmesg` shows messages from the **kernel** itself — the core piece of software that directly manages the hardware (CPU, memory, disks, USB devices, network cards) underneath everything else running on the machine. These are lower-level than typical application logs — think hardware being detected, a disk being mounted, or (as in the last line) the kernel forcibly killing a process because the machine ran out of memory. The number in brackets is a timestamp: seconds since the machine booted up, not a calendar date/time. `dmesg` normally dumps the *entire* kernel log buffer at once, which can be long, so piping it through `tail` (using the `|` symbol, which feeds one command's output directly into another command as input) trims it down to just the most recent entries.
+ 
+**DevOps read**: this is where you look for hardware-level or memory-level problems that wouldn't show up in a normal application log — the "Out of memory: Killed process" line above is a real, common example: it's the kernel's own record of forcibly terminating a process because the system ran out of RAM, which is often the actual root-cause explanation behind a service mysteriously dying with no error of its own.
+ 
+---
  
